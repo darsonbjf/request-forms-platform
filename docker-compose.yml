@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-forms_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-forms_password}
+      POSTGRES_DB: ${POSTGRES_DB:-forms}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - forms-net
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3001}:3001"
+    depends_on:
+      - postgres
+    networks:
+      - forms-net
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    networks:
+      - forms-net
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: ./apps/admin
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - api
+    networks:
+      - forms-net
+    restart: unless-stopped
+
+networks:
+  forms-net:
+    driver: bridge
+
+volumes:
+  db_data:

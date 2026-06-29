@@ -1,0 +1,38 @@
+# Ignorar diretórios e arquivos comuns
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Ignorar pastas específicas
+/.vscode/
+/node_modules/
+/build/
+/dist/
+/*.exe
+/*.dll
+
+# Ignorar arquivos e pastas do sistema
+/.gitconfig
+/.ssh/
+/AppData/
+/Contacts/
+/Desktop/
+/Documents/
+/Downloads/
+/Favorites/
+/Links/
+/Music/
+/OneDrive/
+/Pictures/
+/Saved Games/
+/Searches/
+/Videos/
+/WebComponents/
+/Desktop/form-master
+# Ignorar arquivos temporários e diretórios
+*.exe
+*.log
+.vscode/
+node_modules/

@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+yarn.lock
+
+# Build output
+dist/
+build/
+coverage/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+mysecrets.yml
+*secret*
+!mysecrets.yml.example
+!*secret*.example
+*password*
+*.pem
+*.key
+
+# Runtime files
+logs/
+*.log
+*.tmp
+*.swp
+
+# Local tooling
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local database dumps
+apps/api/scripts/02_backup.sql
+*.dump
+*.backup.sql

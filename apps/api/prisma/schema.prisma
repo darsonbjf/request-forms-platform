@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["forms"]
+}
+
+model Unidade {
+  id          Int          @id @default(autoincrement())
+  unidade     String       @db.VarChar(100)
+  requisicoes Requisicao[]
+
+  @@schema("forms")
+}
+
+model Cargo {
+  id          Int          @id @default(autoincrement())
+  cargo       String?      @db.VarChar(40)
+  sistemasServicos SistemasServico[]
+  requisicoes Requisicao[]
+
+  @@schema("forms")
+}
+
+model Sistema {
+  id               Int               @id @default(autoincrement())
+  sistema          String            @db.VarChar(100)
+  sistemasServicos SistemasServico[]
+
+  @@schema("forms")
+}
+
+model Servico {
+  id               Int               @id @default(autoincrement())
+  servico          String            @db.VarChar(100)
+  sistemasServicos SistemasServico[]
+
+  @@schema("forms")
+}
+
+model TipoArquivo {
+  id                       Int                       @id @default(autoincrement())
+  arquivo                  String                    @db.Text
+  sistemasServicosArquivos SistemasServicosArquivo[]
+
+  @@schema("forms")
+}
+
+model SistemasServico {
+  id        Int  @id @default(autoincrement())
+  sistemaId Int? @map("sistemaID")
+  servicoId Int? @map("servicoID")
+  cargoId   Int? @map("cargoID")
+
+  sistema     Sistema?                  @relation(fields: [sistemaId], references: [id])
+  servico     Servico?                  @relation(fields: [servicoId], references: [id])
+  cargo       Cargo?                    @relation(fields: [cargoId], references: [id])
+  arquivos    SistemasServicosArquivo[]
+  requisicoes Requisicao[]
+
+  @@schema("forms")
+}
+
+model SistemasServicosArquivo {
+  id                 Int  @id @default(autoincrement())
+  sistemasServicosId Int? @map("sistemas_servicosID")
+  arquivoId          Int? @map("arquivoID")
+
+  sistemasServico SistemasServico? @relation(fields: [sistemasServicosId], references: [id])
+  tipoArquivo     TipoArquivo?     @relation(fields: [arquivoId], references: [id])
+
+  @@schema("forms")
+}
+
+model Anexo {
+  id          Int      @id @default(autoincrement())
+  anexo       String   @db.Text
+  filename    String   @db.VarChar(500)
+  mimetype    String?  @db.VarChar(500)
+  size        Int?
+  anexo2      String?  @db.Text
+  filename2   String?  @db.VarChar(500)
+  mimetype2   String?  @db.VarChar(500)
+  size2       Int?
+  createdAt   DateTime @default(now())
+
+  requisicoes Requisicao[] @relation("RequisicoesAnexo")
+  requisicoes2 Requisicao[] @relation("RequisicoesAnexo2")
+
+  @@schema("forms")
+}
+
+model Requisicao {
+  id               Int      @id @default(autoincrement())
+  cpf              String   @db.VarChar(14) // CPF do requerente
+  nomeCompleto     String   @db.VarChar(200)
+  dataNascimento   DateTime
+  matricula        String   @db.VarChar(8)
+  emailPessoal     String?  @db.VarChar(150)
+  emailFuncional   String   @db.VarChar(150)
+  contato          String?  @db.VarChar(17)
+  observacao       String?  @db.VarChar(100)
+  unidadeId        Int?
+  cargoId          Int?
+  sistemaServicoId Int      @map("sistema_servicoID")
+  anexo1Id         Int?     @map("anexoID")
+  anexo2Id         Int?     @map("anexo2ID")
+  chamadoId        Int?     @map("chamadoID")
+  dataSolicitacao  DateTime @default(now()) @map("data_solicitacao")
+  ipAddress        String?  @default("")
+
+  unidade        Unidade?        @relation(fields: [unidadeId], references: [id])
+  cargo          Cargo?          @relation(fields: [cargoId], references: [id])
+  sistemaServico SistemasServico @relation(fields: [sistemaServicoId], references: [id])
+
+  anexo1         Anexo?     @relation("RequisicoesAnexo", fields: [anexo1Id], references: [id])
+  anexo2         Anexo?     @relation("RequisicoesAnexo2", fields: [anexo2Id], references: [id])
+
+  @@schema("forms")
+  @@map("requisicoes")
+}
+
+model Usuario {
+  id               Int      @id @default(autoincrement())
+  username         String   @unique @db.VarChar(30)
+  passwordHash     String   @db.VarChar(60)
+  cpf            String   @unique @db.VarChar(14) 
+  nome           String   @db.VarChar(100)
+  status         Boolean  @default(true) 
+  nivelPermissao String   @default("moderador")
+
+  @@schema("forms")
+}

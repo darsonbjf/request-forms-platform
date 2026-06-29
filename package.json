@@ -1,0 +1,17 @@
+{
+  "name": "request-forms-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack request forms platform with React, Express, Prisma and PostgreSQL.",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm run build:user && npm run build:admin",
+    "build:user": "npm --prefix apps/web run build",
+    "build:admin": "npm --prefix apps/admin run build",
+    "dev:backend": "npm --prefix apps/api run dev",
+    "dev:user": "npm --prefix apps/web run dev",
+    "dev:admin": "npm --prefix apps/admin run dev",
+    "prisma:generate": "npm --prefix apps/api run prisma:generate",
+    "prisma:validate": "npm --prefix apps/api run prisma:validate"
+  }
+}

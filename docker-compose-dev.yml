@@ -1,0 +1,86 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-forms_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-forms_password}
+      POSTGRES_DB: ${POSTGRES_DB:-forms}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forms_user} -d ${POSTGRES_DB:-forms}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - forms-net
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: postgres
+      DATABASE_URL: ${DATABASE_URL:-postgresql://forms_user:forms_password@postgres:5432/forms?schema=forms}
+    ports:
+      - "${PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - forms-net
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.dev
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_BASE_URL: ${VITE_BASE_URL:-http://localhost:3001}
+      VITE_API_PREFIX: ${VITE_API_PREFIX:-/forms}
+      VITE_RECAPTCHA_SITE_KEY: ${VITE_RECAPTCHA_SITE_KEY:-}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    networks:
+      - forms-net
+
+  admin:
+    build:
+      context: ./apps/admin
+      dockerfile: Dockerfile.dev
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_BASE_URL: ${VITE_BASE_URL:-http://localhost:3001}
+      VITE_API_PREFIX: ${VITE_API_PREFIX:-/forms}
+    ports:
+      - "5174:5174"
+    depends_on:
+      - api
+    networks:
+      - forms-net
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    profiles: ["observability"]
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    volumes:
+      - ./infra/observability/otel-collector-config.yaml:/etc/otel/config.yaml:ro
+    command: ["--config=/etc/otel/config.yaml"]
+    networks:
+      - forms-net
+
+networks:
+  forms-net:
+    driver: bridge
+
+volumes:
+  db_data:

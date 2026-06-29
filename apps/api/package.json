@@ -1,0 +1,31 @@
+{
+  "name": "request-forms-api",
+  "version": "1.0.0",
+  "description": "Express API for Request Forms Platform.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "prisma:generate": "DATABASE_URL=${DATABASE_URL:-postgresql://forms_user:forms_password@localhost:5432/forms?schema=forms} prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:validate": "DATABASE_URL=${DATABASE_URL:-postgresql://forms_user:forms_password@localhost:5432/forms?schema=forms} prisma validate",
+    "seed": "node prisma/seed.js"
+  },
+  "author": "darsonbjf",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.2.0",
+    "prisma": "^5.22.0",
+    "prom-client": "^15.1.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "type": "module"
+}
